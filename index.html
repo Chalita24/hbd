@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>HBD GUS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    html,
+    body {
+      position: relative;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Mali', sans-serif;
+      font-size: 14px;
+      color: #000;
+    }
+  
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #B99C85;
+    }
+  
+    .banner {
+      width: 100%;
+      background-color: #f5f5f5;
+      text-align: center;
+    }
+  
+    .banner img {
+      max-width: 100%;
+      height: auto;
+    }
+  
+    .slide-img {
+      width: 100%;
+      max-width: 240px;
+      margin-top: 20px;
+    }
+  
+    swiper-container {
+      width: 100%;
+      height: auto;
+    }
+  
+    swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      height: 320px; /* Set the height of the slide */
+    }
+  
+    swiper-slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain; /* Ensure image fits inside without cropping */
+      border-radius: 10px;
+    }
+  
+    .popup-hidden {
+      display: none;
+    }
+  
+    .popup-visible {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+  
+    .popup-visible img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+    }
+  
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    .message-popup {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      z-index: 1001;
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+
+    /* Media queries for responsive design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+  
+      .col {
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+  
+      .slide-img {
+        max-width: 100%;
+      }
+    }
+
+    #background {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    filter: blur(7px);
+    z-index: -1;
+    }
+
+    .outer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    }
+
+    .player-container {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    height: 400px;
+    width: 325px;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0 0 30px #f94c57;
+    }
+
+    #thumbnail {
+    position: absolute;
+    object-fit: fill;
+    height: 100%;
+    width: 100%;
+    top: -10%;
+    transition: 1s;
+    z-index: 3;
+    }
+
+    .box {
+    position: absolute;
+    height: 45%;
+    width: 100%;
+    background: linear-gradient(90deg, rgb(145, 145, 145), rgb(220, 220, 220));
+    z-index: 4;
+    bottom: -10%;
+    display: grid;
+    grid-template-colums: 35px 255px 35px;
+    grid-template-rows: 85px 25px 25px;
+    grid-template-areas:
+        "one two two three"
+        "four four four four"
+        "five five five five";
+    column-gap: 10px;
+    }
+
+    .play-pause {
+    grid-area: one;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    }
+    .fa-pause-circle {
+    filter: invert(1);
+    cursor: pointer;
+    display: none;
+    }
+
+    #play,
+    #prev-track,
+    #next-track {
+    filter: invert(1);
+    cursor: pointer;
+    }
+
+    .track-info {
+    grid-area: two;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 5%;
+    /* border: 1px solid red; */
+    }
+
+    #track-artist {
+    color: #f94c57;
+    font-family: "Lato", sans-serif;
+    font-weight: bold;
+    font-size: 1.125rem;
+    text-shadow: 0 0 15px white;
+    }
+
+    #track-title {
+    color: white;
+    font-family: "Lato", sans-serif;
+    font-size: 1rem;
+    }
+
+    .next-prev {
+    grid-area: three;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    /* border: 1px solid red; */
+    }
+
+    .progress-bar {
+    grid-area: four;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: 1px solid red; */
+    }
+
+    #progressBar {
+    appearance: none;
+    height: 5px;
+    background: white;
+    width: 57.5%;
+    outline: none;
+    border-radius: 30px;
+    }
+
+    #progressBar::-webkit-slider-thumb {
+    appearance: none;
+    height: 11px;
+    width: 11px;
+    outline: none;
+    background: #f94c57;
+    border-radius: 30px;
+    cursor: pointer;
+    }
+
+    .track-time {
+    grid-area: five;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    /* border: 1px solid red; */
+    }
+
+    #currentTime {
+    font-family: "Lato", sans-serif;
+    font-size: 1rem;
+    color: white;
+    }
+
+    #durationTime {
+    font-family: "Lato", sans-serif;
+    font-size: 1rem;
+    color: #f94c57;
+    text-shadow: 0 0 15px white;
+    }
+
+    .popup-hiddens {
+    display: none;
+    }
+
+    .popup-visibles {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+  </style>
+  
+</head>
+
+<body>
+    <div class="banner">
+        <img src="img/Bundit Thongnoi.png" alt="Banner Image">
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col" style="background-color: #fff">
+                <div class="outer-container">
+                    <img src="img/10.jpeg" alt="Harry Styles' Fine Line album cover" id="background" />
+                    <audio src="music/สุขสันต์วันเกิด.mp3" id="track"></audio>
+                </div>
+                  
+                <div class="player-container">
+                    <img src="img/2.jpg" alt="Harry Styles' Fine Line album cover" id="thumbnail" />
+                  
+                    <div class="box">
+                      <div class="play-pause">
+                        <i class="far fa-play-circle fa-3x" id="play"></i>
+                        <i class="far fa-pause-circle fa-3x" id="pause"></i>
+                      </div>
+                      <div class="track-info">
+                        <div id="track-artist">สุขสันต์วันเกิด</div>
+                        <div id="track-title">feat. เดียร์ acappella7 - พิม ฐิติยากร</div>
+                      </div>
+                      <div class="next-prev">
+                        <i class="far fa-arrow-alt-circle-left fa-2x" id="prev-track"></i>
+                        <i class="far fa-arrow-alt-circle-right fa-2x" id="next-track"></i>
+                      </div>
+                      <div class="progress-bar">
+                        <input type="range" id="progressBar" min="0" max="" value="0" />
+                      </div>
+                      <div class="track-time">
+                        <div id="currentTime"></div>
+                        <div id="durationTime"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col">
+
+            </div> -->
+        </div>
+         
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col d-flex flex-column justify-content-center align-items-center">
+                <h1 style="color: #dad7d4;">สุขสันต์วันเกิด</h1>
+                <p style="color: #dad7d4;">Gus Kung</p>
+                <div class="slide-img">
+                    <swiper-container class="mySwiper" effect="cards" grab-cursor="true">
+                        <swiper-slide><img src="img/1.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/2.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/3.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/4.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/5.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/6.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/7.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/8.jpg" alt=""></swiper-slide>
+                        <swiper-slide><img src="img/9.jpg" alt=""></swiper-slide>
+                    </swiper-container>
+                </div>
+
+                <button type="button" class="btn btn-outline-secondary" style="color: #dad7d4; margin-top: 5%;" id="hbd-button">HBD Wishes</button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup for enlarged image -->
+    <div id="popup-image" class="popup-hidden">
+        <img src="" alt="Popup Image">
+        <span class="popup-close">&times;</span>
+    </div>
+
+    <!-- Message Popup -->
+    <div id="message-popup" class="popup-hiddens">
+        <div class="message-popup">
+            <p>You are very special and that’s why you need to float with lots of smiles on your lovely face. Happy birthday.</p>
+            <h3>Gus Kung</h3>
+            <span class="popup-close" id="message-closes">&times;</span>
+        </div>
+    </div>
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+    <script>
+        // Get the popup and close button elements
+        const popup = document.getElementById('popup-image');
+        const popupImage = popup.querySelector('img');
+        const closeBtn = popup.querySelector('.popup-close');
+
+        // Get all swiper-slide images
+        const swiperImages = document.querySelectorAll('swiper-slide img');
+
+        // Add click event listener to each image
+        swiperImages.forEach(img => {
+            img.addEventListener('click', function () {
+                popupImage.src = this.src;  // Set the popup image source to the clicked image source
+                popup.classList.add('popup-visible');  // Show the popup
+                popup.classList.remove('popup-hidden');
+            });
+        });
+
+        // Add click event listener to the close button to hide the image popup
+        closeBtn.addEventListener('click', function () {
+            popup.classList.add('popup-hidden');
+            popup.classList.remove('popup-visible');
+        });
+
+        // Close the image popup if clicking outside the image
+        popup.addEventListener('click', function (e) {
+            if (e.target === popup) {
+                popup.classList.add('popup-hidden');
+                popup.classList.remove('popup-visible');
+            }
+        });
+
+        const track = document.getElementById("track");
+        const thumbnail = document.getElementById("thumbnail");
+        const background = document.getElementById("background");
+        const trackArtist = document.getElementById("track-artist");
+        const trackTitle = document.getElementById("track-title");
+        const progressBar = document.getElementById("progressBar");
+        const currentTime = document.getElementById("currentTime");
+        const durationTime = document.getElementById("durationTime");
+
+        let play = document.getElementById("play");
+        let pause = document.getElementById("pause");
+        let next = document.getElementById("next-track");
+        let prev = document.getElementById("prev-track");
+        trackIndex = 0;
+
+        let playing = true;
+
+        function pausePlay() {
+        if (playing) {
+            play.style.display = "none";
+            pause.style.display = "block";
+
+            thumbnail.style.transform = "scale(1.25)";
+
+            track.play();
+            playing = false;
+        } else {
+            pause.style.display = "none";
+            play.style.display = "block";
+
+            thumbnail.style.transform = "scale(1)";
+
+            track.pause();
+            playing = true;
+        }
+        }
+
+        play.addEventListener("click", pausePlay);
+        pause.addEventListener("click", pausePlay);
+
+        function prevTrack() {
+        trackIndex--;
+        if (trackIndex < 0) {
+            trackIndex = tracks.length - 1;
+        }
+
+        track.src = tracks[trackIndex];
+        thumbnail.src = thumbnails[trackIndex];
+        background.src = thumbnails[trackIndex];
+
+        trackArtist.textContent = trackArtists[trackIndex];
+        trackTitle.textContent = trackTitles[trackIndex];
+
+        playing = true;
+        pausePlay();
+        }
+
+        prev.addEventListener("click", prevTrack);
+
+        function progressValue() {
+        progressBar.max = track.duration;
+        progressBar.value = track.currentTime;
+
+        currentTime.textContent = formatTime(track.currentTime);
+        durationTime.textContent = formatTime(track.duration);
+        }
+
+        setInterval(progressValue, 500);
+
+        function formatTime(sec) {
+        let minutes = Math.floor(sec / 60);
+        let seconds = Math.floor(sec - minutes * 60);
+        if (seconds < 10) {
+            seconds = `0${seconds}`;
+        }
+        return `${minutes}:${seconds}`;
+        }
+
+        function changeProgressBar() {
+        track.currentTime = progressBar.value;
+        }
+
+        progressBar.addEventListener("click", changeProgressBar);
+
+        // Get the button and the message popup elements
+        const hbdButton = document.getElementById('hbd-button');
+        const messagePopup = document.getElementById('message-popup');
+        const messageClose = document.getElementById('message-closes');
+
+        // Add click event listener to the HBD button
+        hbdButton.addEventListener('click', function () {
+            console.log('HBD button clicked');  // ตรวจสอบว่าถูกกด
+            messagePopup.classList.add('popup-visibles');
+            messagePopup.classList.remove('popup-hiddens');
+        });
+
+        // Add click event listener to close the message popup
+        messageClose.addEventListener('click', function () {
+            messagePopup.classList.add('popup-hiddens');
+            messagePopup.classList.remove('popup-visibles');
+        });
+
+        // Optional: Close the message popup if clicking outside the popup content
+        messagePopup.addEventListener('click', function (e) {
+            if (e.target === messagePopup) {
+                messagePopup.classList.add('popup-hiddens');
+                messagePopup.classList.remove('popup-visibles');
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
